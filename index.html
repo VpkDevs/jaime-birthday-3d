@@ -45,9 +45,15 @@
         
         <div id="ui-overlay">
             <button id="music-toggle" class="control-btn">🎵 Music</button>
+            <button id="visualizer-toggle" class="control-btn">🎶 Visualizer OFF</button>
             <button id="confetti-burst" class="control-btn">🎊 Confetti Burst!</button>
             <button id="fireworks" class="control-btn">🎆 Fireworks!</button>
             <button id="cake-spawn" class="control-btn">🎂 Spawn Cake!</button>
+            <div id="visualizer-controls" style="display: none; margin-top: 10px;">
+                <button class="control-btn small-btn" onclick="setVisualizationPreset('smooth')">Smooth</button>
+                <button class="control-btn small-btn" onclick="setVisualizationPreset('responsive')">Responsive</button>
+                <button class="control-btn small-btn" onclick="setVisualizationPreset('intense')">Intense</button>
+            </div>
         </div>
         
         <div id="message-overlay">
@@ -68,6 +74,7 @@
     
     <script src="particles.js"></script>
     <script src="physics.js"></script>
+    <script src="visualizer.js"></script>
     <script src="main.js"></script>
 </body>
 </html>

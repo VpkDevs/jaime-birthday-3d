@@ -116,6 +116,31 @@ body {
     transform: translateY(0) scale(0.98);
 }
 
+.small-btn {
+    padding: 8px 15px;
+    font-size: 14px;
+    background: rgba(255, 255, 255, 0.8);
+}
+
+.small-btn:hover {
+    background: rgba(255, 255, 255, 0.95);
+}
+
+#visualizer-controls {
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
 #message-overlay {
     position: absolute;
     bottom: 30px;

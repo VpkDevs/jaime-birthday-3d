@@ -7,6 +7,7 @@ let stars = [];
 let cakes = [];
 let time = 0;
 let musicPlaying = false;
+let visualizerActive = false;
 
 // Initialize the scene
 function init() {
@@ -582,8 +583,41 @@ function setupEventListeners() {
                 duration: 2
             });
             document.getElementById('music-toggle').textContent = '🔇 Mute';
+            
+            // Auto-enable visualizer when music starts
+            if (!visualizerActive && typeof initVisualizer !== 'undefined') {
+                setTimeout(() => {
+                    document.getElementById('visualizer-toggle').click();
+                }, 500);
+            }
         }
         musicPlaying = !musicPlaying;
+    });
+    
+    // Visualizer toggle
+    document.getElementById('visualizer-toggle').addEventListener('click', () => {
+        if (visualizerActive) {
+            if (typeof stopVisualizer !== 'undefined') {
+                stopVisualizer();
+            }
+            document.getElementById('visualizer-toggle').textContent = '🎶 Visualizer OFF';
+            document.getElementById('visualizer-controls').style.display = 'none';
+            visualizerActive = false;
+        } else {
+            if (musicPlaying && typeof initVisualizer !== 'undefined') {
+                try {
+                    initVisualizer();
+                    document.getElementById('visualizer-toggle').textContent = '🎶 Visualizer ON';
+                    document.getElementById('visualizer-controls').style.display = 'block';
+                    visualizerActive = true;
+                } catch (e) {
+                    console.log('Visualizer initialization failed:', e);
+                    alert('Please play music first to enable the visualizer!');
+                }
+            } else {
+                alert('Please start the music first!');
+            }
+        }
     });
     
     document.getElementById('confetti-burst').addEventListener('click', () => {
