@@ -65,6 +65,39 @@
             background: rgba(255,255,255,0.1);
             border-radius: 5px;
         }
+        
+        @keyframes fallDown {
+            0% {
+                transform: translateY(-50px) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+        
+        @keyframes floatUp {
+            0% {
+                transform: translateY(50px) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100vh) rotate(20deg);
+                opacity: 0;
+            }
+        }
+        
+        @keyframes explode {
+            0% {
+                transform: translate(0, 0) scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(var(--end-x), var(--end-y)) scale(0.5);
+                opacity: 0;
+            }
+        }
     </style>
 </head>
 <body>
@@ -126,9 +159,29 @@
         ];
         
         function init() {
-            // Create scene
-            scene = new THREE.Scene();
-            scene.fog = new THREE.FogExp2(0x000033, 0.008);
+            // Check if THREE.js is available
+            if (typeof THREE === 'undefined') {
+                console.warn('THREE.js library failed to load. Using fallback mode.');
+                // Hide loading, show controls anyway
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('controls').style.display = 'block';
+                
+                // Show a message about fallback mode
+                const controlsDiv = document.getElementById('controls');
+                const fallbackMsg = document.createElement('div');
+                fallbackMsg.style.background = 'rgba(255, 200, 0, 0.8)';
+                fallbackMsg.style.padding = '10px';
+                fallbackMsg.style.borderRadius = '5px';
+                fallbackMsg.style.marginBottom = '10px';
+                fallbackMsg.innerHTML = '⚠️ <strong>Fallback Mode</strong><br>3D effects unavailable, using 2D animations instead.';
+                controlsDiv.insertBefore(fallbackMsg, controlsDiv.firstChild);
+                return;
+            }
+            
+            try {
+                // Create scene
+                scene = new THREE.Scene();
+                scene.fog = new THREE.FogExp2(0x000033, 0.008);
             
             // Create camera
             camera = new THREE.PerspectiveCamera(
@@ -239,6 +292,23 @@
             
             // Start animation
             animate();
+            
+            } catch (error) {
+                console.error('THREE.js initialization failed:', error);
+                // Hide loading, show controls anyway
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('controls').style.display = 'block';
+                
+                // Show error message
+                const controlsDiv = document.getElementById('controls');
+                const errorMsg = document.createElement('div');
+                errorMsg.style.background = 'rgba(255, 100, 100, 0.8)';
+                errorMsg.style.padding = '10px';
+                errorMsg.style.borderRadius = '5px';
+                errorMsg.style.marginBottom = '10px';
+                errorMsg.innerHTML = '❌ <strong>3D Mode Failed</strong><br>Using 2D fallback animations.';
+                controlsDiv.insertBefore(errorMsg, controlsDiv.firstChild);
+            }
         }
         
         function createParticleField() {
@@ -272,6 +342,104 @@
             particles.push(points);
         }
         
+        // Fallback functions for when THREE.js is not available
+        function showFallbackConfetti() {
+            const confettiContainer = document.createElement('div');
+            confettiContainer.style.position = 'fixed';
+            confettiContainer.style.top = '0';
+            confettiContainer.style.left = '0';
+            confettiContainer.style.width = '100%';
+            confettiContainer.style.height = '100%';
+            confettiContainer.style.pointerEvents = 'none';
+            confettiContainer.style.zIndex = '1000';
+            document.body.appendChild(confettiContainer);
+            
+            // Create 50 confetti pieces
+            for (let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                confetti.innerHTML = ['🎊', '🎉', '✨', '💫', '⭐'][Math.floor(Math.random() * 5)];
+                confetti.style.position = 'absolute';
+                confetti.style.left = Math.random() * 100 + '%';
+                confetti.style.top = '-50px';
+                confetti.style.fontSize = Math.random() * 20 + 10 + 'px';
+                confetti.style.animation = `fallDown ${2 + Math.random() * 3}s linear forwards`;
+                confettiContainer.appendChild(confetti);
+            }
+            
+            // Remove confetti after animation
+            setTimeout(() => {
+                document.body.removeChild(confettiContainer);
+            }, 5000);
+        }
+        
+        function showFallbackBalloons() {
+            const balloonContainer = document.createElement('div');
+            balloonContainer.style.position = 'fixed';
+            balloonContainer.style.bottom = '0';
+            balloonContainer.style.left = '0';
+            balloonContainer.style.width = '100%';
+            balloonContainer.style.height = '100%';
+            balloonContainer.style.pointerEvents = 'none';
+            balloonContainer.style.zIndex = '999';
+            document.body.appendChild(balloonContainer);
+            
+            // Create 10 balloons
+            for (let i = 0; i < 10; i++) {
+                const balloon = document.createElement('div');
+                balloon.innerHTML = '🎈';
+                balloon.style.position = 'absolute';
+                balloon.style.left = Math.random() * 100 + '%';
+                balloon.style.bottom = '-50px';
+                balloon.style.fontSize = '30px';
+                balloon.style.animation = `floatUp ${3 + Math.random() * 4}s ease-out forwards`;
+                balloonContainer.appendChild(balloon);
+            }
+            
+            // Remove balloons after animation
+            setTimeout(() => {
+                document.body.removeChild(balloonContainer);
+            }, 7000);
+        }
+        
+        function showFallbackFirework() {
+            const fireworkContainer = document.createElement('div');
+            fireworkContainer.style.position = 'fixed';
+            fireworkContainer.style.top = '0';
+            fireworkContainer.style.left = '0';
+            fireworkContainer.style.width = '100%';
+            fireworkContainer.style.height = '100%';
+            fireworkContainer.style.pointerEvents = 'none';
+            fireworkContainer.style.zIndex = '1001';
+            document.body.appendChild(fireworkContainer);
+            
+            // Create firework burst at random position
+            const x = Math.random() * 80 + 10; // 10-90% from left
+            const y = Math.random() * 60 + 20; // 20-80% from top
+            
+            for (let i = 0; i < 30; i++) {
+                const particle = document.createElement('div');
+                particle.innerHTML = ['💥', '✨', '🌟', '⭐'][Math.floor(Math.random() * 4)];
+                particle.style.position = 'absolute';
+                particle.style.left = x + '%';
+                particle.style.top = y + '%';
+                particle.style.fontSize = '20px';
+                particle.style.animation = `explode ${1 + Math.random()}s ease-out forwards`;
+                
+                // Random direction for explosion
+                const angle = (i / 30) * 2 * Math.PI;
+                const distance = 50 + Math.random() * 100;
+                particle.style.setProperty('--end-x', Math.cos(angle) * distance + 'px');
+                particle.style.setProperty('--end-y', Math.sin(angle) * distance + 'px');
+                
+                fireworkContainer.appendChild(particle);
+            }
+            
+            // Remove firework after animation
+            setTimeout(() => {
+                document.body.removeChild(fireworkContainer);
+            }, 2000);
+        }
+        
         function createBalloons(count) {
             for (let i = 0; i < count; i++) {
                 const geometry = new THREE.SphereGeometry(2, 32, 32);
@@ -300,6 +468,13 @@
         }
         
         function spawnConfetti() {
+            // Check if THREE.js is loaded
+            if (typeof THREE === 'undefined' || !scene) {
+                console.warn('THREE.js not loaded - showing fallback confetti animation');
+                showFallbackConfetti();
+                return;
+            }
+            
             const count = 50;
             for (let i = 0; i < count; i++) {
                 const geometry = new THREE.BoxGeometry(0.3, 0.3, 0.1);
@@ -334,6 +509,13 @@
         }
         
         function launchFirework() {
+            // Check if THREE.js is loaded
+            if (typeof THREE === 'undefined' || !scene) {
+                console.warn('THREE.js not loaded - showing fallback firework animation');
+                showFallbackFirework();
+                return;
+            }
+            
             const colors = [0xff0000, 0x00ff00, 0x0000ff, 0xffff00, 0xff00ff];
             const color = colors[Math.floor(Math.random() * colors.length)];
             
@@ -355,6 +537,13 @@
         }
         
         function spawnBalloons() {
+            // Check if THREE.js is loaded
+            if (typeof THREE === 'undefined' || !scene) {
+                console.warn('THREE.js not loaded - showing fallback balloon animation');
+                showFallbackBalloons();
+                return;
+            }
+            
             createBalloons(10);
         }
         
@@ -380,78 +569,88 @@
         function animate() {
             requestAnimationFrame(animate);
             
-            time += 0.01;
-            
-            // Rotate camera
-            if (autoRotate) {
-                camera.position.x = Math.cos(time * 0.5) * 30;
-                camera.position.z = Math.sin(time * 0.5) * 30;
-                camera.lookAt(0, 0, 0);
+            // Skip animation if THREE.js is not loaded or scene not initialized
+            if (typeof THREE === 'undefined' || !scene || !camera || !renderer) {
+                return;
             }
             
-            // Animate particles
-            particles.forEach(particle => {
-                particle.rotation.y += 0.001;
-            });
-            
-            // Animate balloons
-            balloons.forEach(balloon => {
-                balloon.position.y += Math.sin(time + balloon.userData.floatOffset) * balloon.userData.floatSpeed;
-                balloon.rotation.y += 0.01;
-            });
-            
-            // Update confetti
-            confettiParticles = confettiParticles.filter(confetti => {
-                confetti.position.add(confetti.userData.velocity);
-                confetti.userData.velocity.y -= 0.01; // gravity
+            try {
+                time += 0.01;
                 
-                confetti.rotation.x += confetti.userData.rotationSpeed.x;
-                confetti.rotation.y += confetti.userData.rotationSpeed.y;
-                confetti.rotation.z += confetti.userData.rotationSpeed.z;
-                
-                confetti.userData.life--;
-                
-                if (confetti.userData.life <= 0 || confetti.position.y < -10) {
-                    scene.remove(confetti);
-                    return false;
+                // Rotate camera
+                if (autoRotate) {
+                    camera.position.x = Math.cos(time * 0.5) * 30;
+                    camera.position.z = Math.sin(time * 0.5) * 30;
+                    camera.lookAt(0, 0, 0);
                 }
-                return true;
-            });
-            
-            // Update fireworks
-            fireworks = fireworks.filter(firework => {
-                firework.position.add(firework.userData.velocity);
-                firework.userData.life--;
                 
-                if (firework.userData.life === 50) {
-                    // Explode!
-                    for (let i = 0; i < 20; i++) {
-                        const particle = new THREE.Mesh(
-                            new THREE.SphereGeometry(0.2),
-                            new THREE.MeshBasicMaterial({ color: firework.userData.color })
-                        );
-                        particle.position.copy(firework.position);
-                        particle.userData = {
-                            velocity: new THREE.Vector3(
-                                (Math.random() - 0.5) * 0.5,
-                                (Math.random() - 0.5) * 0.5,
-                                (Math.random() - 0.5) * 0.5
-                            ),
-                            life: 50
-                        };
-                        scene.add(particle);
-                        confettiParticles.push(particle);
+                // Animate particles
+                particles.forEach(particle => {
+                    particle.rotation.y += 0.001;
+                });
+                
+                // Animate balloons
+                balloons.forEach(balloon => {
+                    balloon.position.y += Math.sin(time + balloon.userData.floatOffset) * balloon.userData.floatSpeed;
+                    balloon.rotation.y += 0.01;
+                });
+                
+                // Update confetti
+                confettiParticles = confettiParticles.filter(confetti => {
+                    confetti.position.add(confetti.userData.velocity);
+                    confetti.userData.velocity.y -= 0.01; // gravity
+                    
+                    confetti.rotation.x += confetti.userData.rotationSpeed.x;
+                    confetti.rotation.y += confetti.userData.rotationSpeed.y;
+                    confetti.rotation.z += confetti.userData.rotationSpeed.z;
+                    
+                    confetti.userData.life--;
+                    
+                    if (confetti.userData.life <= 0 || confetti.position.y < -10) {
+                        scene.remove(confetti);
+                        return false;
                     }
-                }
+                    return true;
+                });
                 
-                if (firework.userData.life <= 0) {
-                    scene.remove(firework);
-                    return false;
-                }
-                return true;
-            });
-            
-            renderer.render(scene, camera);
+                // Update fireworks
+                fireworks = fireworks.filter(firework => {
+                    firework.position.add(firework.userData.velocity);
+                    firework.userData.life--;
+                    
+                    if (firework.userData.life === 50) {
+                        // Explode!
+                        for (let i = 0; i < 20; i++) {
+                            const particle = new THREE.Mesh(
+                                new THREE.SphereGeometry(0.2),
+                                new THREE.MeshBasicMaterial({ color: firework.userData.color })
+                            );
+                            particle.position.copy(firework.position);
+                            particle.userData = {
+                                velocity: new THREE.Vector3(
+                                    (Math.random() - 0.5) * 0.5,
+                                    (Math.random() - 0.5) * 0.5,
+                                    (Math.random() - 0.5) * 0.5
+                                ),
+                                life: 50
+                            };
+                            scene.add(particle);
+                            confettiParticles.push(particle);
+                        }
+                    }
+                    
+                    if (firework.userData.life <= 0) {
+                        scene.remove(firework);
+                        return false;
+                    }
+                    return true;
+                });
+                
+                renderer.render(scene, camera);
+            } catch (error) {
+                console.error('Animation error:', error);
+                // Continue animation loop even if there's an error
+            }
         }
         
         // Keyboard controls
