@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy Birthday Jaime Delgado! 🎉</title>
+    <link rel="stylesheet" href="style.css">
+    
+    <!-- Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    
+    <!-- Cannon.js for physics -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cannon.js/0.6.2/cannon.min.js"></script>
+    
+    <!-- GSAP for animations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    
+    <!-- Font loader for 3D text -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/FontLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/geometries/TextGeometry.js"></script>
+    
+    <!-- Orbit Controls -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    
+    <!-- Post-processing effects -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/EffectComposer.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/RenderPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/ShaderPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/CopyShader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/LuminosityHighPassShader.js"></script>
+</head>
+<body>
+    <div id="loading">
+        <div class="loader">
+            <span>Preparing Birthday Magic for Jaime...</span>
+            <div class="progress-bar">
+                <div class="progress"></div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="container">
+        <canvas id="canvas"></canvas>
+        
+        <div id="ui-overlay">
+            <button id="music-toggle" class="control-btn" onclick="toggleMusic()">🎵 Play Music</button>
+            <button id="song1-btn" class="control-btn" onclick="playSpecificSong(1)">🎵 Song 1</button>
+            <button id="song2-btn" class="control-btn" onclick="playSpecificSong(2)">🎵 Song 2</button>
+            <button id="song3-btn" class="control-btn" onclick="playSpecificSong(3)">🎵 Song 3</button>
+            <button id="visualizer-toggle" class="control-btn">🎶 Visualizer OFF</button>
+            <button id="confetti-burst" class="control-btn">🎊 Confetti Burst!</button>
+            <button id="fireworks" class="control-btn">🎆 Fireworks!</button>
+            <button id="cake-spawn" class="control-btn">🎂 Spawn Cake!</button>
+            
+            <div id="now-playing" style="margin-top: 10px; padding: 10px; background: rgba(255,255,255,0.9); border-radius: 10px; display: none;">
+                <span style="font-weight: bold;">Now Playing: </span>
+                <span id="current-song">None</span>
+            </div>
+        </div>
+        
+        <div id="message-overlay">
+            <h2>Click and drag to rotate • Scroll to zoom</h2>
+            <p>Press SPACE for a surprise!</p>
+        </div>
+    </div>
+    
+    <!-- Simple audio element that WILL WORK -->
+    <audio id="birthday-music" controls style="position: fixed; bottom: 10px; left: 10px; z-index: 9999;">
+        <source src="song1.mp3" type="audio/mpeg">
+        Your browser does not support audio.
+    </audio>
+    
+    <script>
+        // SIMPLE WORKING MUSIC SYSTEM
+        let currentSong = 1;
+        let musicPlaying = false;
+        const audio = document.getElementById('birthday-music');
+        
+        const songs = [
+            { file: 'song1.mp3', name: 'Happy Birthday Dude! 🎉' },
+            { file: 'song2.mp3', name: 'Happy B-Day Jaime! 🎂' },
+            { file: 'song3.mp3', name: 'Yo Jaime, It\'s Your Day! 🎈' }
+        ];
+        
+        function playSpecificSong(songNumber) {
+            currentSong = songNumber;
+            const song = songs[songNumber - 1];
+            
+            // Update audio source
+            audio.src = song.file;
+            audio.load();
+            
+            // Try to play
+            audio.play().then(() => {
+                console.log('Playing:', song.name);
+                document.getElementById('current-song').textContent = song.name;
+                document.getElementById('now-playing').style.display = 'block';
+                document.getElementById('music-toggle').textContent = '⏸ Pause';
+                musicPlaying = true;
+                
+                // Try to start visualizer
+                if (typeof initVisualizer !== 'undefined') {
+                    try {
+                        initVisualizer();
+                        document.getElementById('visualizer-toggle').textContent = '🎶 Visualizer ON';
+                    } catch(e) {
+                        console.log('Visualizer skipped');
+                    }
+                }
+            }).catch(error => {
+                console.error('Playback failed:', error);
+                alert('Click anywhere on the page first, then try playing music again (browser security requirement)');
+            });
+        }
+        
+        function toggleMusic() {
+            if (musicPlaying) {
+                audio.pause();
+                document.getElementById('music-toggle').textContent = '🎵 Play Music';
+                musicPlaying = false;
+            } else {
+                playSpecificSong(currentSong);
+            }
+        }
+        
+        // Auto play next song
+        audio.addEventListener('ended', () => {
+            currentSong = (currentSong % 3) + 1;
+            playSpecificSong(currentSong);
+        });
+        
+        // Click to enable audio (browser requirement)
+        document.addEventListener('click', () => {
+            if (audio.paused && !musicPlaying) {
+                console.log('Audio context enabled');
+            }
+        }, { once: true });
+    </script>
+    
+    <script src="particles.js"></script>
+    <script src="physics.js"></script>
+    <script src="visualizer.js"></script>
+    <script src="main-pro.js"></script>
+</body>
+</html>

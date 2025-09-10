@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Audio Test - Jaime's Songs</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 50px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        h1 { text-align: center; }
+        .song-test {
+            margin: 20px 0;
+            padding: 20px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+        }
+        audio {
+            width: 100%;
+            margin: 10px 0;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            background: white;
+            color: #667eea;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #f0f0f0;
+        }
+        .status {
+            margin: 10px 0;
+            padding: 10px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎵 Jaime's Birthday Songs - Audio Test 🎵</h1>
+    
+    <div class="song-test">
+        <h2>Song 1: Happy Birthday Dude! 🎉</h2>
+        <audio id="audio1" controls>
+            <source src="song1.mp3" type="audio/mpeg">
+        </audio>
+        <button onclick="document.getElementById('audio1').play()">Play Song 1</button>
+        <button onclick="document.getElementById('audio1').pause()">Pause</button>
+        <button onclick="testLoad('audio1', 'song1.mp3')">Test Load</button>
+        <div id="status1" class="status">Status: Ready</div>
+    </div>
+    
+    <div class="song-test">
+        <h2>Song 2: Happy B-Day Jaime! 🎂</h2>
+        <audio id="audio2" controls>
+            <source src="song2.mp3" type="audio/mpeg">
+        </audio>
+        <button onclick="document.getElementById('audio2').play()">Play Song 2</button>
+        <button onclick="document.getElementById('audio2').pause()">Pause</button>
+        <button onclick="testLoad('audio2', 'song2.mp3')">Test Load</button>
+        <div id="status2" class="status">Status: Ready</div>
+    </div>
+    
+    <div class="song-test">
+        <h2>Song 3: Yo Jaime, It's Your Day! 🎈</h2>
+        <audio id="audio3" controls>
+            <source src="song3.mp3" type="audio/mpeg">
+        </audio>
+        <button onclick="document.getElementById('audio3').play()">Play Song 3</button>
+        <button onclick="document.getElementById('audio3').pause()">Pause</button>
+        <button onclick="testLoad('audio3', 'song3.mp3')">Test Load</button>
+        <div id="status3" class="status">Status: Ready</div>
+    </div>
+    
+    <div class="song-test">
+        <h2>Test All Songs in Sequence</h2>
+        <button onclick="playAll()">Play All Songs</button>
+        <button onclick="stopAll()">Stop All</button>
+        <div id="statusAll" class="status">Click "Play All Songs" to test sequence</div>
+    </div>
+    
+    <script>
+        // Test if audio can be loaded
+        function testLoad(audioId, fileName) {
+            const audio = document.getElementById(audioId);
+            const statusDiv = document.getElementById(audioId.replace('audio', 'status'));
+            
+            statusDiv.textContent = 'Testing: ' + fileName + '...';
+            
+            audio.src = fileName;
+            audio.load();
+            
+            audio.addEventListener('loadeddata', () => {
+                statusDiv.textContent = '✅ SUCCESS: ' + fileName + ' loaded! Duration: ' + audio.duration.toFixed(2) + ' seconds';
+                statusDiv.style.background = 'rgba(0,255,0,0.2)';
+            });
+            
+            audio.addEventListener('error', (e) => {
+                statusDiv.textContent = '❌ ERROR: Could not load ' + fileName;
+                statusDiv.style.background = 'rgba(255,0,0,0.2)';
+                console.error('Audio error:', e);
+            });
+        }
+        
+        let currentPlayingSong = 0;
+        function playAll() {
+            currentPlayingSong = 1;
+            playNextInSequence();
+        }
+        
+        function playNextInSequence() {
+            if (currentPlayingSong > 3) {
+                document.getElementById('statusAll').textContent = '✅ All songs tested successfully!';
+                return;
+            }
+            
+            stopAll();
+            const audio = document.getElementById('audio' + currentPlayingSong);
+            document.getElementById('statusAll').textContent = 'Playing Song ' + currentPlayingSong + '...';
+            
+            audio.play().then(() => {
+                setTimeout(() => {
+                    audio.pause();
+                    currentPlayingSong++;
+                    playNextInSequence();
+                }, 3000); // Play each for 3 seconds
+            }).catch(err => {
+                document.getElementById('statusAll').textContent = '❌ Error playing Song ' + currentPlayingSong;
+                console.error(err);
+            });
+        }
+        
+        function stopAll() {
+            document.getElementById('audio1').pause();
+            document.getElementById('audio2').pause();
+            document.getElementById('audio3').pause();
+        }
+        
+        // Auto-test on load
+        window.addEventListener('load', () => {
+            console.log('Testing audio files...');
+            testLoad('audio1', 'song1.mp3');
+            testLoad('audio2', 'song2.mp3');
+            testLoad('audio3', 'song3.mp3');
+        });
+    </script>
+</body>
+</html>

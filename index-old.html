@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy Birthday Jaime Delgado! 🎉</title>
+    <link rel="stylesheet" href="style.css">
+    
+    <!-- Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    
+    <!-- Cannon.js for physics -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cannon.js/0.6.2/cannon.min.js"></script>
+    
+    <!-- GSAP for animations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    
+    <!-- Font loader for 3D text -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/FontLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/geometries/TextGeometry.js"></script>
+    
+    <!-- Orbit Controls -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    
+    <!-- Post-processing effects -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/EffectComposer.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/RenderPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/ShaderPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/CopyShader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/LuminosityHighPassShader.js"></script>
+</head>
+<body>
+    <div id="loading">
+        <div class="loader">
+            <span>Preparing Birthday Magic for Jaime...</span>
+            <div class="progress-bar">
+                <div class="progress"></div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="container">
+        <canvas id="canvas"></canvas>
+        
+        <div id="ui-overlay">
+            <button id="music-toggle" class="control-btn">🎵 Music</button>
+            <button id="playlist-toggle" class="control-btn">📻 Playlist</button>
+            <button id="visualizer-toggle" class="control-btn">🎶 Visualizer OFF</button>
+            <button id="confetti-burst" class="control-btn">🎊 Confetti Burst!</button>
+            <button id="fireworks" class="control-btn">🎆 Fireworks!</button>
+            <button id="cake-spawn" class="control-btn">🎂 Spawn Cake!</button>
+            
+            <!-- Playlist Panel -->
+            <div id="playlist-panel" class="playlist-container" style="display: none;">
+                <h3>🎵 Choose Your Song</h3>
+                <div class="playlist">
+                    <div class="song-item" data-song="1">
+                        <span class="song-number">1</span>
+                        <div class="song-info">
+                            <span class="song-title">Birthday Song 1</span>
+                            <span class="song-artist">Custom Track</span>
+                        </div>
+                        <button class="play-btn" onclick="playSong(1)">▶</button>
+                    </div>
+                    <div class="song-item" data-song="2">
+                        <span class="song-number">2</span>
+                        <div class="song-info">
+                            <span class="song-title">Birthday Song 2</span>
+                            <span class="song-artist">Custom Track</span>
+                        </div>
+                        <button class="play-btn" onclick="playSong(2)">▶</button>
+                    </div>
+                    <div class="song-item" data-song="3">
+                        <span class="song-number">3</span>
+                        <div class="song-info">
+                            <span class="song-title">Birthday Song 3</span>
+                            <span class="song-artist">Custom Track</span>
+                        </div>
+                        <button class="play-btn" onclick="playSong(3)">▶</button>
+                    </div>
+                </div>
+                <div class="playlist-controls">
+                    <button class="playlist-btn" onclick="previousSong()">⏮ Previous</button>
+                    <button class="playlist-btn" onclick="nextSong()">Next ⏭</button>
+                    <button class="playlist-btn" onclick="shuffleSong()">🔀 Shuffle</button>
+                </div>
+            </div>
+            
+            <div id="visualizer-controls" style="display: none; margin-top: 10px;">
+                <button class="control-btn small-btn" onclick="setVisualizationPreset('smooth')">Smooth</button>
+                <button class="control-btn small-btn" onclick="setVisualizationPreset('responsive')">Responsive</button>
+                <button class="control-btn small-btn" onclick="setVisualizationPreset('intense')">Intense</button>
+            </div>
+        </div>
+        
+        <div id="message-overlay">
+            <h2>Click and drag to rotate • Scroll to zoom</h2>
+            <p>Press SPACE for a surprise!</p>
+        </div>
+    </div>
+    
+    <!-- Multiple audio tracks for playlist -->
+    <audio id="birthday-music" loop></audio>
+    
+    <!-- Hidden audio elements for preloading -->
+    <audio id="song1" preload="auto">
+        <source src="song1.mp3" type="audio/mpeg">
+        <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+    </audio>
+    
+    <audio id="song2" preload="auto">
+        <source src="song2.mp3" type="audio/mpeg">
+        <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" type="audio/mpeg">
+    </audio>
+    
+    <audio id="song3" preload="auto">
+        <source src="song3.mp3" type="audio/mpeg">
+        <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3" type="audio/mpeg">
+    </audio>
+    
+    <script src="particles.js"></script>
+    <script src="physics.js"></script>
+    <script src="visualizer.js"></script>
+    <script src="main-pro.js"></script>
+</body>
+</html>

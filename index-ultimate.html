@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>🎆 JAIME'S ULTIMATE BIRTHDAY EXPERIENCE 🎆</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Poppins:wght@400;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            margin: 0;
+            overflow: hidden;
+            font-family: 'Poppins', sans-serif;
+            background: #000;
+        }
+        
+        /* EPIC LOADING SCREEN */
+        #loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, #000428 0%, #004e92 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            animation: loadingPulse 3s infinite;
+        }
+        
+        @keyframes loadingPulse {
+            0%, 100% { background: linear-gradient(45deg, #000428 0%, #004e92 100%); }
+            25% { background: linear-gradient(45deg, #f093fb 0%, #f5576c 100%); }
+            50% { background: linear-gradient(45deg, #4facfe 0%, #00f2fe 100%); }
+            75% { background: linear-gradient(45deg, #43e97b 0%, #38f9d7 100%); }
+        }
+        
+        #loading-content {
+            text-align: center;
+            color: white;
+        }
+        
+        #loading h1 {
+            font-family: 'Bebas Neue', cursive;
+            font-size: 72px;
+            margin-bottom: 20px;
+            text-shadow: 0 0 30px rgba(255,255,255,0.5);
+            animation: titleGlow 2s infinite;
+        }
+        
+        @keyframes titleGlow {
+            0%, 100% { 
+                text-shadow: 0 0 30px rgba(255,255,255,0.5),
+                             0 0 60px rgba(255,0,255,0.5),
+                             0 0 90px rgba(0,255,255,0.5);
+            }
+            50% { 
+                text-shadow: 0 0 40px rgba(255,255,255,0.8),
+                             0 0 80px rgba(255,0,255,0.8),
+                             0 0 120px rgba(0,255,255,0.8);
+            }
+        }
+        
+        .loading-bar {
+            width: 300px;
+            height: 4px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 2px;
+            overflow: hidden;
+            margin: 20px auto;
+        }
+        
+        .loading-progress {
+            height: 100%;
+            background: linear-gradient(90deg, #ff00ff, #00ffff, #ffff00);
+            animation: loadingBar 2s infinite;
+        }
+        
+        @keyframes loadingBar {
+            0% { width: 0%; }
+            100% { width: 100%; }
+        }
+        
+        /* ULTIMATE START BUTTON */
+        #start-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            background: radial-gradient(circle at center, transparent 0%, rgba(0,0,0,0.8) 100%);
+            backdrop-filter: blur(5px);
+            transition: opacity 1s;
+        }
+        
+        #start-title {
+            font-family: 'Bebas Neue', cursive;
+            font-size: 48px;
+            color: white;
+            margin-bottom: 30px;
+            text-shadow: 0 0 30px rgba(255,0,255,0.8);
+        }
+        
+        #start-button {
+            position: relative;
+            padding: 30px 60px;
+            font-family: 'Bebas Neue', cursive;
+            font-size: 32px;
+            background: linear-gradient(45deg, #ff006e, #8338ec, #3a86ff);
+            background-size: 300% 300%;
+            color: white;
+            border: none;
+            border-radius: 100px;
+            cursor: pointer;
+            z-index: 1;
+            overflow: hidden;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            box-shadow: 0 20px 60px rgba(131,56,236,0.4),
+                        0 0 100px rgba(131,56,236,0.2);
+            animation: buttonGradient 3s ease infinite;
+            transition: all 0.3s;
+        }
+        
+        @keyframes buttonGradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        #start-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            transition: left 0.5s;
+        }
+        
+        #start-button:hover::before {
+            left: 100%;
+        }
+        
+        #start-button:hover {
+            transform: scale(1.1) rotate(1deg);
+            box-shadow: 0 30px 80px rgba(131,56,236,0.6),
+                        0 0 120px rgba(131,56,236,0.4);
+        }
+        
+        /* Particle effects around button */
+        .particle {
+            position: absolute;
+            pointer-events: none;
+            opacity: 0;
+            animation: particleFloat 4s infinite;
+        }
+        
+        @keyframes particleFloat {
+            0% {
+                opacity: 0;
+                transform: translateY(0) scale(0);
+            }
+            20% {
+                opacity: 1;
+                transform: translateY(-20px) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-100px) scale(0);
+            }
+        }
+        
+        /* Instructions */
+        #instructions {
+            position: fixed;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            text-align: center;
+            font-size: 14px;
+            opacity: 0.8;
+            z-index: 9998;
+        }
+        
+        .key-hint {
+            display: inline-block;
+            padding: 5px 10px;
+            margin: 0 5px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 5px;
+            font-family: monospace;
+        }
+        
+        /* Hidden initially */
+        #start-container.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        
+        /* Performance stats */
+        #stats-display {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            color: #0f0;
+            font-family: monospace;
+            font-size: 12px;
+            z-index: 1001;
+            background: rgba(0,0,0,0.7);
+            padding: 5px;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <!-- EPIC LOADING SCREEN -->
+    <div id="loading">
+        <div id="loading-content">
+            <h1>🎆 INITIALIZING BIRTHDAY MAGIC 🎆</h1>
+            <div class="loading-bar">
+                <div class="loading-progress"></div>
+            </div>
+            <p style="color: #fff; margin-top: 20px; font-size: 18px;">Preparing the ultimate celebration...</p>
+        </div>
+    </div>
+    
+    <!-- START SCREEN -->
+    <div id="start-container" class="hidden">
+        <h1 id="start-title">🎉 WELCOME TO JAIME'S BIRTHDAY UNIVERSE 🎉</h1>
+        <button id="start-button">
+            <span>🚀 LAUNCH PARTY 🚀</span>
+        </button>
+        <div id="instructions">
+            <p>Press <span class="key-hint">SPACE</span> for confetti 
+               <span class="key-hint">F</span> for fireworks 
+               <span class="key-hint">C</span> for cake 
+               <span class="key-hint">D</span> for disco</p>
+            <p>Click balloons to pop them! Use <span class="key-hint">1-3</span> to switch songs</p>
+        </div>
+    </div>
+    
+    <!-- AUDIO ELEMENT -->
+    <audio id="birthdayAudio" preload="auto"></audio>
+    
+    <!-- Performance Stats -->
+    <div id="stats-display" style="display: none;">
+        FPS: <span id="fps-counter">60</span>
+    </div>
+    
+    <!-- Load Three.js and main script -->
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+            "three/examples/jsm/controls/OrbitControls.js": "https://unpkg.com/three@0.160.0/examples/jsm/controls/OrbitControls.js",
+            "three/examples/jsm/postprocessing/EffectComposer.js": "https://unpkg.com/three@0.160.0/examples/jsm/postprocessing/EffectComposer.js",
+            "three/examples/jsm/postprocessing/RenderPass.js": "https://unpkg.com/three@0.160.0/examples/jsm/postprocessing/RenderPass.js",
+            "three/examples/jsm/postprocessing/UnrealBloomPass.js": "https://unpkg.com/three@0.160.0/examples/jsm/postprocessing/UnrealBloomPass.js",
+            "three/examples/jsm/postprocessing/FilmPass.js": "https://unpkg.com/three@0.160.0/examples/jsm/postprocessing/FilmPass.js",
+            "three/examples/jsm/postprocessing/ShaderPass.js": "https://unpkg.com/three@0.160.0/examples/jsm/postprocessing/ShaderPass.js",
+            "three/examples/jsm/shaders/FXAAShader.js": "https://unpkg.com/three@0.160.0/examples/jsm/shaders/FXAAShader.js",
+            "three/examples/jsm/loaders/FontLoader.js": "https://unpkg.com/three@0.160.0/examples/jsm/loaders/FontLoader.js",
+            "three/examples/jsm/geometries/TextGeometry.js": "https://unpkg.com/three@0.160.0/examples/jsm/geometries/TextGeometry.js",
+            "cannon": "https://cdn.jsdelivr.net/npm/cannon-es@0.20.0/+esm"
+        }
+    }
+    </script>
+    
+    <!-- Initialize -->
+    <script type="module">
+        // Simulate loading
+        setTimeout(() => {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('start-container').classList.remove('hidden');
+            
+            // Add floating particles around start button
+            const startBtn = document.getElementById('start-button');
+            for (let i = 0; i < 20; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.innerHTML = ['✨', '⭐', '🌟', '💫', '🎉', '🎊'][Math.floor(Math.random() * 6)];
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 4 + 's';
+                particle.style.fontSize = Math.random() * 20 + 10 + 'px';
+                startBtn.appendChild(particle);
+            }
+        }, 2000);
+        
+        // Load main script when start button is clicked
+        document.getElementById('start-button').addEventListener('click', async () => {
+            // Hide start screen
+            document.getElementById('start-container').classList.add('hidden');
+            
+            // Load the ultimate birthday scene
+            const module = await import('./main-ultimate.js');
+            
+            // Show FPS counter
+            document.getElementById('stats-display').style.display = 'block';
+            
+            // Update FPS
+            let lastTime = performance.now();
+            let frames = 0;
+            
+            function updateFPS() {
+                frames++;
+                const currentTime = performance.now();
+                if (currentTime >= lastTime + 1000) {
+                    document.getElementById('fps-counter').textContent = frames;
+                    frames = 0;
+                    lastTime = currentTime;
+                }
+                requestAnimationFrame(updateFPS);
+            }
+            updateFPS();
+        });
+    </script>
+</body>
+</html>
