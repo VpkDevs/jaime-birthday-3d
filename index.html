@@ -45,10 +45,48 @@
         
         <div id="ui-overlay">
             <button id="music-toggle" class="control-btn">🎵 Music</button>
+            <button id="playlist-toggle" class="control-btn">📻 Playlist</button>
             <button id="visualizer-toggle" class="control-btn">🎶 Visualizer OFF</button>
             <button id="confetti-burst" class="control-btn">🎊 Confetti Burst!</button>
             <button id="fireworks" class="control-btn">🎆 Fireworks!</button>
             <button id="cake-spawn" class="control-btn">🎂 Spawn Cake!</button>
+            
+            <!-- Playlist Panel -->
+            <div id="playlist-panel" class="playlist-container" style="display: none;">
+                <h3>🎵 Choose Your Song</h3>
+                <div class="playlist">
+                    <div class="song-item" data-song="1">
+                        <span class="song-number">1</span>
+                        <div class="song-info">
+                            <span class="song-title">Birthday Song 1</span>
+                            <span class="song-artist">Custom Track</span>
+                        </div>
+                        <button class="play-btn" onclick="playSong(1)">▶</button>
+                    </div>
+                    <div class="song-item" data-song="2">
+                        <span class="song-number">2</span>
+                        <div class="song-info">
+                            <span class="song-title">Birthday Song 2</span>
+                            <span class="song-artist">Custom Track</span>
+                        </div>
+                        <button class="play-btn" onclick="playSong(2)">▶</button>
+                    </div>
+                    <div class="song-item" data-song="3">
+                        <span class="song-number">3</span>
+                        <div class="song-info">
+                            <span class="song-title">Birthday Song 3</span>
+                            <span class="song-artist">Custom Track</span>
+                        </div>
+                        <button class="play-btn" onclick="playSong(3)">▶</button>
+                    </div>
+                </div>
+                <div class="playlist-controls">
+                    <button class="playlist-btn" onclick="previousSong()">⏮ Previous</button>
+                    <button class="playlist-btn" onclick="nextSong()">Next ⏭</button>
+                    <button class="playlist-btn" onclick="shuffleSong()">🔀 Shuffle</button>
+                </div>
+            </div>
+            
             <div id="visualizer-controls" style="display: none; margin-top: 10px;">
                 <button class="control-btn small-btn" onclick="setVisualizationPreset('smooth')">Smooth</button>
                 <button class="control-btn small-btn" onclick="setVisualizationPreset('responsive')">Responsive</button>
@@ -62,19 +100,29 @@
         </div>
     </div>
     
-    <audio id="birthday-music" loop>
-        <!-- Add your custom song here! -->
-        <!-- Option 1: Place your MP3 file in the project folder and update the src path -->
-        <source src="birthday-song.mp3" type="audio/mpeg">
-        <!-- Option 2: Use any online MP3 URL -->
-        <!-- <source src="https://your-audio-url-here.mp3" type="audio/mpeg"> -->
-        <!-- Fallback audio if custom song not found -->
+    <!-- Multiple audio tracks for playlist -->
+    <audio id="birthday-music" loop></audio>
+    
+    <!-- Hidden audio elements for preloading -->
+    <audio id="song1" preload="auto">
+        <source src="song1.mp3" type="audio/mpeg">
         <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+    </audio>
+    
+    <audio id="song2" preload="auto">
+        <source src="song2.mp3" type="audio/mpeg">
+        <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" type="audio/mpeg">
+    </audio>
+    
+    <audio id="song3" preload="auto">
+        <source src="song3.mp3" type="audio/mpeg">
+        <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3" type="audio/mpeg">
     </audio>
     
     <script src="particles.js"></script>
     <script src="physics.js"></script>
     <script src="visualizer.js"></script>
+    <script src="playlist.js"></script>
     <script src="main.js"></script>
 </body>
 </html>
