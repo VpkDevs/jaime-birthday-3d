@@ -558,11 +558,29 @@ function setupEventListeners() {
     // Button controls
     document.getElementById('music-toggle').addEventListener('click', () => {
         const audio = document.getElementById('birthday-music');
+        audio.volume = 0.5; // Set to 50% volume for comfortable listening
+        
         if (musicPlaying) {
-            audio.pause();
+            // Fade out music
+            gsap.to(audio, {
+                volume: 0,
+                duration: 1,
+                onComplete: () => {
+                    audio.pause();
+                }
+            });
             document.getElementById('music-toggle').textContent = '🎵 Music';
         } else {
-            audio.play().catch(e => console.log('Audio play failed:', e));
+            audio.volume = 0;
+            audio.play().catch(e => {
+                console.log('Audio play failed:', e);
+                alert('Please add your song file as "birthday-song.mp3" in the project folder!');
+            });
+            // Fade in music
+            gsap.to(audio, {
+                volume: 0.5,
+                duration: 2
+            });
             document.getElementById('music-toggle').textContent = '🔇 Mute';
         }
         musicPlaying = !musicPlaying;
