@@ -107,6 +107,93 @@
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script>
+        // Fallback for when Three.js fails to load
+        if (typeof THREE === 'undefined') {
+            console.warn('Three.js failed to load from CDN. Creating mock objects to prevent freezing.');
+            window.THREE = {
+                Scene: function() { 
+                    return { 
+                        add: function(){}, 
+                        remove: function(){}, 
+                        fog: null 
+                    }; 
+                },
+                PerspectiveCamera: function() { 
+                    return { 
+                        position: { set: function(){}, x: 0, y: 0, z: 0 }, 
+                        lookAt: function(){},
+                        aspect: 1,
+                        updateProjectionMatrix: function(){}
+                    }; 
+                },
+                WebGLRenderer: function() { 
+                    return { 
+                        domElement: document.createElement('div'), 
+                        setSize: function(){}, 
+                        setPixelRatio: function(){}, 
+                        render: function(){} 
+                    }; 
+                },
+                FogExp2: function() { return {}; },
+                AmbientLight: function() { return {}; },
+                PointLight: function() { 
+                    return { 
+                        position: { 
+                            set: function(x, y, z) { this.x = x; this.y = y; this.z = z; return this; },
+                            copy: function(v) { this.x = v.x; this.y = v.y; this.z = v.z; return this; },
+                            add: function(v) { this.x += v.x; this.y += v.y; this.z += v.z; return this; },
+                            x: 0, y: 0, z: 0
+                        }, 
+                        userData: {},
+                        add: function(){}
+                    }; 
+                },
+                FontLoader: function() { return { load: function(){} }; },
+                TextGeometry: function() { return { center: function(){} }; },
+                MeshPhongMaterial: function() { return {}; },
+                Mesh: function() { 
+                    return { 
+                        position: { 
+                            set: function(x, y, z) { this.x = x; this.y = y; this.z = z; return this; },
+                            copy: function(v) { this.x = v.x; this.y = v.y; this.z = v.z; return this; },
+                            add: function(v) { this.x += v.x; this.y += v.y; this.z += v.z; return this; },
+                            x: 0, y: 0, z: 0
+                        }, 
+                        rotation: { x: 0, y: 0, z: 0 }, 
+                        userData: {} 
+                    }; 
+                },
+                BufferGeometry: function() { return { setAttribute: function(){} }; },
+                Float32BufferAttribute: function() { return {}; },
+                PointsMaterial: function() { return {}; },
+                Points: function() { return { rotation: { y: 0 } }; },
+                SphereGeometry: function() { return {}; },
+                BoxGeometry: function() { return {}; },
+                PlaneGeometry: function() { return {}; },
+                MeshBasicMaterial: function() { return {}; },
+                DoubleSide: 0,
+                Vector3: function(x, y, z) { 
+                    return { 
+                        x: x || 0, y: y || 0, z: z || 0,
+                        set: function(x, y, z) { this.x = x; this.y = y; this.z = z; return this; }, 
+                        copy: function(v) { this.x = v.x; this.y = v.y; this.z = v.z; return this; }, 
+                        add: function(v) { this.x += v.x; this.y += v.y; this.z += v.z; return this; },
+                        multiplyScalar: function(s) { this.x *= s; this.y *= s; this.z *= s; return this; },
+                        clone: function(){ return new THREE.Vector3(this.x, this.y, this.z); }
+                    }; 
+                },
+                Color: function() { return { setHSL: function(){}, r: 1, g: 1, b: 1 }; }
+            };
+            
+            // Show error message to user
+            setTimeout(() => {
+                document.getElementById('loading').innerHTML = '<h1>🎉 Birthday Party (Fallback Mode) 🎉</h1><p style="color: white; text-align: center;">3D effects unavailable, but the party controls still work!<br/>Try the buttons below!</p>';
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('controls').style.display = 'block';
+            }, 2000);
+        }
+    </script>
+    <script>
         // Scene setup
         let scene, camera, renderer;
         let particles = [];
@@ -126,9 +213,16 @@
         ];
         
         function init() {
-            // Create scene
-            scene = new THREE.Scene();
-            scene.fog = new THREE.FogExp2(0x000033, 0.008);
+            try {
+                // Check if Three.js is available
+                if (typeof THREE === 'undefined') {
+                    console.error('Three.js is not available. Cannot initialize 3D scene.');
+                    return;
+                }
+                
+                // Create scene
+                scene = new THREE.Scene();
+                scene.fog = new THREE.FogExp2(0x000033, 0.008);
             
             // Create camera
             camera = new THREE.PerspectiveCamera(
@@ -239,7 +333,12 @@
             
             // Start animation
             animate();
+        } catch (error) {
+            console.error('Error initializing scene:', error);
+            // Show error message to user
+            document.getElementById('loading').innerHTML = '<h1>🚨 Initialization Error 🚨</h1><p style="color: white; text-align: center;">There was an error starting the 3D scene.<br/>Please refresh the page to try again.</p>';
         }
+    }
         
         function createParticleField() {
             const particleCount = 1000;
@@ -334,24 +433,34 @@
         }
         
         function launchFirework() {
-            const colors = [0xff0000, 0x00ff00, 0x0000ff, 0xffff00, 0xff00ff];
-            const color = colors[Math.floor(Math.random() * colors.length)];
-            
-            const light = new THREE.PointLight(color, 5, 50);
-            light.position.set(
-                (Math.random() - 0.5) * 30,
-                0,
-                (Math.random() - 0.5) * 30
-            );
-            
-            light.userData = {
-                velocity: new THREE.Vector3(0, 0.5, 0),
-                life: 100,
-                color: color
-            };
-            
-            scene.add(light);
-            fireworks.push(light);
+            try {
+                // Check if Three.js and scene are properly initialized
+                if (typeof THREE === 'undefined' || !scene || !scene.add) {
+                    console.warn('Cannot launch firework: Three.js not properly loaded');
+                    return;
+                }
+                
+                const colors = [0xff0000, 0x00ff00, 0x0000ff, 0xffff00, 0xff00ff];
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                
+                const light = new THREE.PointLight(color, 5, 50);
+                light.position.set(
+                    (Math.random() - 0.5) * 30,
+                    0,
+                    (Math.random() - 0.5) * 30
+                );
+                
+                light.userData = {
+                    velocity: new THREE.Vector3(0, 0.5, 0),
+                    life: 100,
+                    color: color
+                };
+                
+                scene.add(light);
+                fireworks.push(light);
+            } catch (error) {
+                console.error('Error launching firework:', error);
+            }
         }
         
         function spawnBalloons() {
@@ -359,7 +468,18 @@
         }
         
         function toggleRotation() {
-            autoRotate = !autoRotate;
+            try {
+                autoRotate = !autoRotate;
+                console.log('Auto-rotation toggled:', autoRotate ? 'ON' : 'OFF');
+                
+                // Update button text to give user feedback
+                const button = event.target;
+                if (button) {
+                    button.textContent = autoRotate ? '⏸️ Stop Rotate' : '▶️ Auto-Rotate';
+                }
+            } catch (error) {
+                console.error('Error toggling rotation:', error);
+            }
         }
         
         function playSong(index) {
@@ -380,78 +500,125 @@
         function animate() {
             requestAnimationFrame(animate);
             
-            time += 0.01;
-            
-            // Rotate camera
-            if (autoRotate) {
-                camera.position.x = Math.cos(time * 0.5) * 30;
-                camera.position.z = Math.sin(time * 0.5) * 30;
-                camera.lookAt(0, 0, 0);
+            try {
+                time += 0.01;
+                
+                // Rotate camera - only if camera and Three.js are available
+                if (autoRotate && camera && camera.position && camera.lookAt) {
+                    camera.position.x = Math.cos(time * 0.5) * 30;
+                    camera.position.z = Math.sin(time * 0.5) * 30;
+                    camera.lookAt(0, 0, 0);
+                }
+                
+                // Animate particles - only if particles array exists
+                if (particles && Array.isArray(particles)) {
+                    particles.forEach(particle => {
+                        if (particle && particle.rotation) {
+                            particle.rotation.y += 0.001;
+                        }
+                    });
+                }
+                
+                // Animate balloons - only if balloons array exists
+                if (balloons && Array.isArray(balloons)) {
+                    balloons.forEach(balloon => {
+                        if (balloon && balloon.position && balloon.userData) {
+                            balloon.position.y += Math.sin(time + balloon.userData.floatOffset) * balloon.userData.floatSpeed;
+                            if (balloon.rotation) {
+                                balloon.rotation.y += 0.01;
+                            }
+                        }
+                    });
+                }
+                
+                // Update confetti - only if confettiParticles array exists
+                if (confettiParticles && Array.isArray(confettiParticles)) {
+                    confettiParticles = confettiParticles.filter(confetti => {
+                        if (!confetti || !confetti.position || !confetti.userData) {
+                            return false;
+                        }
+                        
+                        try {
+                            confetti.position.add(confetti.userData.velocity);
+                            confetti.userData.velocity.y -= 0.01; // gravity
+                            
+                            if (confetti.rotation && confetti.userData.rotationSpeed) {
+                                confetti.rotation.x += confetti.userData.rotationSpeed.x;
+                                confetti.rotation.y += confetti.userData.rotationSpeed.y;
+                                confetti.rotation.z += confetti.userData.rotationSpeed.z;
+                            }
+                            
+                            confetti.userData.life--;
+                            
+                            if (confetti.userData.life <= 0 || confetti.position.y < -10) {
+                                if (scene && scene.remove) {
+                                    scene.remove(confetti);
+                                }
+                                return false;
+                            }
+                            return true;
+                        } catch (error) {
+                            console.warn('Error updating confetti particle:', error);
+                            return false;
+                        }
+                    });
+                }
+                
+                // Update fireworks - only if fireworks array exists
+                if (fireworks && Array.isArray(fireworks)) {
+                    fireworks = fireworks.filter(firework => {
+                        if (!firework || !firework.position || !firework.userData) {
+                            return false;
+                        }
+                        
+                        try {
+                            firework.position.add(firework.userData.velocity);
+                            firework.userData.life--;
+                            
+                            if (firework.userData.life === 50) {
+                                // Explode! - but only if Three.js is available
+                                if (typeof THREE !== 'undefined' && scene && scene.add) {
+                                    for (let i = 0; i < 20; i++) {
+                                        const particle = new THREE.Mesh(
+                                            new THREE.SphereGeometry(0.2),
+                                            new THREE.MeshBasicMaterial({ color: firework.userData.color })
+                                        );
+                                        particle.position.copy(firework.position);
+                                        particle.userData = {
+                                            velocity: new THREE.Vector3(
+                                                (Math.random() - 0.5) * 0.5,
+                                                (Math.random() - 0.5) * 0.5,
+                                                (Math.random() - 0.5) * 0.5
+                                            ),
+                                            life: 50
+                                        };
+                                        scene.add(particle);
+                                        confettiParticles.push(particle);
+                                    }
+                                }
+                            }
+                            
+                            if (firework.userData.life <= 0) {
+                                if (scene && scene.remove) {
+                                    scene.remove(firework);
+                                }
+                                return false;
+                            }
+                            return true;
+                        } catch (error) {
+                            console.warn('Error updating firework:', error);
+                            return false;
+                        }
+                    });
+                }
+                
+                // Render only if renderer and scene are available
+                if (renderer && renderer.render && scene && camera) {
+                    renderer.render(scene, camera);
+                }
+            } catch (error) {
+                console.error('Error in animation loop:', error);
             }
-            
-            // Animate particles
-            particles.forEach(particle => {
-                particle.rotation.y += 0.001;
-            });
-            
-            // Animate balloons
-            balloons.forEach(balloon => {
-                balloon.position.y += Math.sin(time + balloon.userData.floatOffset) * balloon.userData.floatSpeed;
-                balloon.rotation.y += 0.01;
-            });
-            
-            // Update confetti
-            confettiParticles = confettiParticles.filter(confetti => {
-                confetti.position.add(confetti.userData.velocity);
-                confetti.userData.velocity.y -= 0.01; // gravity
-                
-                confetti.rotation.x += confetti.userData.rotationSpeed.x;
-                confetti.rotation.y += confetti.userData.rotationSpeed.y;
-                confetti.rotation.z += confetti.userData.rotationSpeed.z;
-                
-                confetti.userData.life--;
-                
-                if (confetti.userData.life <= 0 || confetti.position.y < -10) {
-                    scene.remove(confetti);
-                    return false;
-                }
-                return true;
-            });
-            
-            // Update fireworks
-            fireworks = fireworks.filter(firework => {
-                firework.position.add(firework.userData.velocity);
-                firework.userData.life--;
-                
-                if (firework.userData.life === 50) {
-                    // Explode!
-                    for (let i = 0; i < 20; i++) {
-                        const particle = new THREE.Mesh(
-                            new THREE.SphereGeometry(0.2),
-                            new THREE.MeshBasicMaterial({ color: firework.userData.color })
-                        );
-                        particle.position.copy(firework.position);
-                        particle.userData = {
-                            velocity: new THREE.Vector3(
-                                (Math.random() - 0.5) * 0.5,
-                                (Math.random() - 0.5) * 0.5,
-                                (Math.random() - 0.5) * 0.5
-                            ),
-                            life: 50
-                        };
-                        scene.add(particle);
-                        confettiParticles.push(particle);
-                    }
-                }
-                
-                if (firework.userData.life <= 0) {
-                    scene.remove(firework);
-                    return false;
-                }
-                return true;
-            });
-            
-            renderer.render(scene, camera);
         }
         
         // Keyboard controls
