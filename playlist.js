@@ -7,24 +7,24 @@ let playlistOpen = false;
 const songs = [
     {
         id: 1,
-        title: "Birthday Celebration",
-        artist: "For Jaime",
+        title: "Happy Birthday Dude! 🎉",
+        artist: "The Classic Jam",
         file: "song1.mp3",
         fallback: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
         color: "#ff6b6b"
     },
     {
         id: 2,
-        title: "Party Time",
-        artist: "Special Mix",
+        title: "Happy B-Day Jaime! 🎂",
+        artist: "Party Remix",
         file: "song2.mp3",
         fallback: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3",
         color: "#4ecdc4"
     },
     {
         id: 3,
-        title: "Happy Vibes",
-        artist: "Birthday Edition",
+        title: "Yo Jaime, It's Your Day! 🎈",
+        artist: "Epic Birthday Mix",
         file: "song3.mp3",
         fallback: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3",
         color: "#ffe66d"
