@@ -383,17 +383,18 @@
         <div style="margin-top: 15px; font-size: 12px; opacity: 0.8;">
             <p>🎮 Keyboard Controls:</p>
             <p>SPACE = Confetti | F = Firework | B = Balloons</p>
-            <p>1-3 = Switch Songs | R = Toggle Rotation | G = Gallery</p>
+            <p>1-3 = Switch Songs | R = Toggle Rotation</p>
+            <p>G = Gallery | ← → = Navigate Photos</p>
         </div>
     </div>
     
     <audio id="audio" preload="auto"></audio>
     
     <!-- Photo Gallery Modal -->
-    <div id="photoGalleryModal">
+    <div id="photoGalleryModal" role="dialog" aria-modal="true" aria-labelledby="galleryTitle">
         <div class="gallery-header">
-            <h2>🎉 Jaime's Birthday Memories 📸</h2>
-            <button class="gallery-close" onclick="closePhotoGallery()">×</button>
+            <h2 id="galleryTitle">🎉 Jaime's Birthday Memories 📸</h2>
+            <button class="gallery-close" onclick="closePhotoGallery()" aria-label="Close gallery">×</button>
         </div>
         <div class="gallery-content">
             <div class="gallery-grid" id="galleryGrid">
@@ -403,14 +404,14 @@
     </div>
     
     <!-- Lightbox -->
-    <div id="lightbox" onclick="closeLightbox(event)">
-        <button class="lightbox-close" onclick="closeLightbox(event)">×</button>
-        <button class="lightbox-nav lightbox-prev" onclick="navigateLightbox(-1, event)">‹</button>
+    <div id="lightbox" onclick="closeLightbox(event)" role="dialog" aria-modal="true" aria-label="Photo viewer">
+        <button class="lightbox-close" onclick="closeLightbox(event)" aria-label="Close photo">×</button>
+        <button class="lightbox-nav lightbox-prev" onclick="navigateLightbox(-1, event)" aria-label="Previous photo">‹</button>
         <div class="lightbox-content">
-            <img id="lightboxImage" src="" alt="Photo">
+            <img id="lightboxImage" alt="Photo">
             <div class="lightbox-caption" id="lightboxCaption"></div>
         </div>
-        <button class="lightbox-nav lightbox-next" onclick="navigateLightbox(1, event)">›</button>
+        <button class="lightbox-nav lightbox-next" onclick="navigateLightbox(1, event)" aria-label="Next photo">›</button>
     </div>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -970,6 +971,9 @@
         
         // Photo Gallery Functions
         let currentLightboxIndex = 0;
+        let galleryInitialized = false;
+        let cachedPhotoImages = {}; // Cache for generated images
+        
         const galleryPhotos = [
             { emoji: '🎂', caption: 'Birthday Cake Moment' },
             { emoji: '🎈', caption: 'Celebration Time' },
@@ -985,18 +989,25 @@
             { emoji: '🎭', caption: 'Fun Times' }
         ];
         
-        function openPhotoGallery() {
-            const modal = document.getElementById('photoGalleryModal');
-            const galleryGrid = document.getElementById('galleryGrid');
+        function initGallery() {
+            if (galleryInitialized) return;
             
-            // Clear existing content
-            galleryGrid.innerHTML = '';
+            const galleryGrid = document.getElementById('galleryGrid');
             
             // Populate gallery with photos
             galleryPhotos.forEach((photo, index) => {
                 const item = document.createElement('div');
                 item.className = 'gallery-item';
+                item.tabIndex = 0;
+                item.role = 'button';
+                item.setAttribute('aria-label', `View ${photo.caption}`);
                 item.onclick = () => openLightbox(index);
+                item.onkeydown = (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        openLightbox(index);
+                    }
+                };
                 
                 item.innerHTML = `
                     <div class="gallery-placeholder">${photo.emoji}</div>
@@ -1008,7 +1019,19 @@
                 galleryGrid.appendChild(item);
             });
             
+            galleryInitialized = true;
+        }
+        
+        function openPhotoGallery() {
+            initGallery();
+            const modal = document.getElementById('photoGalleryModal');
             modal.classList.add('active');
+            
+            // Focus first gallery item for accessibility
+            setTimeout(() => {
+                const firstItem = document.querySelector('.gallery-item');
+                if (firstItem) firstItem.focus();
+            }, 100);
         }
         
         function closePhotoGallery() {
@@ -1016,18 +1039,13 @@
             modal.classList.remove('active');
         }
         
-        function openLightbox(index) {
-            currentLightboxIndex = index;
-            const lightbox = document.getElementById('lightbox');
-            const lightboxImage = document.getElementById('lightboxImage');
-            const lightboxCaption = document.getElementById('lightboxCaption');
+        function generatePhotoImage(index) {
+            // Return cached image if available
+            if (cachedPhotoImages[index]) {
+                return cachedPhotoImages[index];
+            }
             
-            // For now, we'll show the emoji as a large placeholder
-            // In a real implementation, this would show the actual photo
             const photo = galleryPhotos[index];
-            lightboxCaption.textContent = photo.caption;
-            
-            // Create a canvas to display the emoji as an "image"
             const canvas = document.createElement('canvas');
             canvas.width = 800;
             canvas.height = 800;
@@ -1046,11 +1064,27 @@
             ctx.textBaseline = 'middle';
             ctx.fillText(photo.emoji, 400, 400);
             
-            lightboxImage.src = canvas.toDataURL();
+            const dataUrl = canvas.toDataURL();
+            cachedPhotoImages[index] = dataUrl;
+            return dataUrl;
+        }
+        
+        function openLightbox(index) {
+            currentLightboxIndex = index;
+            const lightbox = document.getElementById('lightbox');
+            const lightboxImage = document.getElementById('lightboxImage');
+            const lightboxCaption = document.getElementById('lightboxCaption');
+            
+            // Use cached image generation
+            const photo = galleryPhotos[index];
+            lightboxCaption.textContent = photo.caption;
+            lightboxImage.src = generatePhotoImage(index);
+            
             lightbox.classList.add('active');
         }
         
         function closeLightbox(event) {
+            // Only close if clicking on the background or close button
             if (event.target.id === 'lightbox' || event.target.classList.contains('lightbox-close')) {
                 event.stopPropagation();
                 const lightbox = document.getElementById('lightbox');
@@ -1059,20 +1093,53 @@
         }
         
         function navigateLightbox(direction, event) {
-            event.stopPropagation();
+            if (event) event.stopPropagation();
             currentLightboxIndex = (currentLightboxIndex + direction + galleryPhotos.length) % galleryPhotos.length;
-            openLightbox(currentLightboxIndex);
+            
+            // Update image and caption without recreating lightbox
+            const lightboxImage = document.getElementById('lightboxImage');
+            const lightboxCaption = document.getElementById('lightboxCaption');
+            const photo = galleryPhotos[currentLightboxIndex];
+            
+            lightboxCaption.textContent = photo.caption;
+            lightboxImage.src = generatePhotoImage(currentLightboxIndex);
         }
         
-        // Keyboard shortcut for gallery
+        // Keyboard shortcuts
         document.addEventListener('keydown', (e) => {
-            if (e.key.toLowerCase() === 'g' && !document.getElementById('photoGalleryModal').classList.contains('active')) {
+            // Check if user is typing in an input field
+            const activeElement = document.activeElement;
+            const isInputField = activeElement && (
+                activeElement.tagName === 'INPUT' || 
+                activeElement.tagName === 'TEXTAREA' || 
+                activeElement.isContentEditable
+            );
+            
+            const galleryModal = document.getElementById('photoGalleryModal');
+            const lightbox = document.getElementById('lightbox');
+            const isLightboxActive = lightbox.classList.contains('active');
+            const isGalleryActive = galleryModal.classList.contains('active');
+            
+            // Gallery shortcut
+            if (e.key.toLowerCase() === 'g' && !isGalleryActive && !isInputField) {
                 openPhotoGallery();
-            } else if (e.key === 'Escape') {
-                if (document.getElementById('lightbox').classList.contains('active')) {
-                    document.getElementById('lightbox').classList.remove('active');
-                } else if (document.getElementById('photoGalleryModal').classList.contains('active')) {
+            }
+            // Escape key
+            else if (e.key === 'Escape') {
+                if (isLightboxActive) {
+                    lightbox.classList.remove('active');
+                } else if (isGalleryActive) {
                     closePhotoGallery();
+                }
+            }
+            // Arrow key navigation in lightbox
+            else if (isLightboxActive) {
+                if (e.key === 'ArrowLeft') {
+                    e.preventDefault();
+                    navigateLightbox(-1, null);
+                } else if (e.key === 'ArrowRight') {
+                    e.preventDefault();
+                    navigateLightbox(1, null);
                 }
             }
         });
